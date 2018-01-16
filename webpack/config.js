@@ -6,24 +6,26 @@ import loaders from './loaders';
 import config from './../src/config';
 
 const rootPath = path.resolve(__dirname, './../');
-const { isDevEnvironment } = config;
+
+const { name, isDevEnvironment } = config;
 
 export default {
   entry: ['./index.js'],
   context: `${rootPath}/src`,
   output: {
     path: `${rootPath}/lib`,
-    filename: 'component.bundle.js',
     publicPath: '/',
+    filename: isDevEnvironment
+      ? `${name}.js`
+      : `${name}.min.js`,
 
     ...!isDevEnvironment && {
-      library: 'myComponent',
+      library: name,
       libraryTarget: 'window',
     },
   },
-  module: {
-    rules: loaders,
-  },
+
+  module: { rules: loaders },
 
   ...!isDevEnvironment && {
     externals: [

@@ -9,7 +9,8 @@
     "start": "node -r babel-register ./node_modules/.bin/webpack-dev-server --config=./webpack/config --watch",
     "clean": "rm -rf lib && mkdir lib",
     "build": "yarn run clean && yarn run bundle",
-    "bundle": "NODE_ENV=production node -r babel-register ./node_modules/.bin/webpack -p --config=./webpack/config"
+    "bundle": "NODE_ENV=production node -r babel-register ./node_modules/.bin/webpack -p --config=./webpack/config",
+    "http": "http-server ./lib"
   },
   "devDependencies": {
     "autoprefixer": "^7.2.5",
@@ -35,6 +36,7 @@
     "eslint-plugin-react": "^7.5.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "html-webpack-plugin": "^2.30.1",
+    "http-server": "^0.11.1",
     "postcss-loader": "^2.0.10",
     "preact": "^8.2.7",
     "raw-loader": "^0.5.1",
