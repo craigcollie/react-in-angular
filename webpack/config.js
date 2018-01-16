@@ -1,4 +1,5 @@
 import path from 'path';
+import nodeExternals from 'webpack-node-externals';
 
 import plugins from './plugins';
 import loaders from './loaders';
@@ -8,31 +9,28 @@ const rootPath = path.resolve(__dirname, './../');
 const { isDevEnvironment } = config;
 
 export default {
-  entry: [
-    'babel-polyfill',
-    './index.js',
-  ],
-
+  entry: ['./index.js'],
   context: `${rootPath}/src`,
-
   output: {
-    path: `${rootPath}/public`,
-    filename: isDevEnvironment
-      ? 'assets/js/[name].bundle.js'
-      : 'assets/js/[name].[chunkhash].bundle.js',
+    path: `${rootPath}/lib`,
+    filename: 'component.bundle.js',
     publicPath: '/',
-  },
 
+    ...!isDevEnvironment && {
+      library: 'myComponent',
+      libraryTarget: 'window',
+    },
+  },
   module: {
     rules: loaders,
   },
 
-  resolve: {
-    alias: {
-      '@core': `${rootPath}/src/core`,
-      '@components': `${rootPath}/src/components`,
-      '@containers': `${rootPath}/src/containers`,
-    },
+  ...!isDevEnvironment && {
+    externals: [
+      nodeExternals({
+        whitelist: ['preact'],
+      }),
+    ],
   },
 
   plugins,

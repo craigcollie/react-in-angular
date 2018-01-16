@@ -6,10 +6,6 @@ import config from './../src/config';
 
 const { isDevEnvironment } = config;
 
-const isVendor = m => (
-  m.context && m.context.indexOf('node_modules') !== -1
-);
-
 export default [
   new HtmlWebpackPlugin({
     template: './index.html',
@@ -17,7 +13,7 @@ export default [
 
   ...!isDevEnvironment && [
     new ExtractTextPlugin({
-      filename: 'assets/css/[name].[hash].css',
+      filename: '[name].[hash].css',
       allChunks: true,
     }),
   ],
@@ -25,9 +21,4 @@ export default [
   ...isDevEnvironment && [
     new webpack.HotModuleReplacementPlugin(),
   ],
-
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: isVendor,
-  }),
 ];
