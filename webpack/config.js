@@ -10,7 +10,10 @@ const rootPath = path.resolve(__dirname, './../');
 const { name, isDevEnvironment } = config;
 
 export default {
-  entry: ['./index.js'],
+  entry: {
+    app: './index.js',
+    component: './component.js',
+  },
   context: `${rootPath}/src`,
   output: {
     path: `${rootPath}/lib`,
