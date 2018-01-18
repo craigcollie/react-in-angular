@@ -4,25 +4,16 @@ import reactComponent from './module';
 
 const component = {
   template: `
-    <div>
-      <react-component items="$ctrl.items" on-click="$ctrl.onClick" />
-      <div>
-        {{ $ctrl.items }}<br />
-        <button ng-click="$ctrl.internalOnClick()">A button</button>
-      </div>
-    </div>
+    <react-component items="$ctrl.items" on-click="$ctrl.onClick" />
   `,
-  controller: function ($scope){
+  controller: function (){
     const ctrl = this;
 
     ctrl.items = ['foo', 'bar'];
 
-    const updateItems = () => (
+    ctrl.onClick = () => (
       ctrl.items = [...ctrl.items, 'wee']
-    );
-
-    ctrl.internalOnClick = updateItems;
-    ctrl.onClick = updateItems;
+    );;
   }
 };
 

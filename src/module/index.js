@@ -15,29 +15,31 @@ class EventEmitter {
 
 const eventEmitter = new EventEmitter();
 
-const mapBindingsToProps = (context, bindings) => (
-  Object.keys(bindings).reduce((acc, key) => {
-    acc[key] = bindings[key] === '&'
-      ? context.handleEvent(context[key])
-      : context[key];
+const transformKeys = (bindings, fn) => Object.keys(bindings).reduce(fn, {});
+
+const mapBindingChangesToProps = (newValues) => (
+  transformKeys(newValues, (acc, key) => {
+    acc[key] = newValues[key].currentValue;
     return acc;
-  }, {})
+  })
 );
 
-const mapBindingsToInitialProps = (context, bindings) => {
-  return Object.keys(bindings).reduce((acc, key) => {
+const mapBindingsToInitialProps = (context, bindings) => (
+  transformKeys(bindings, (acc, key) => {
     if (bindings[key] === '<') {
       acc[key] = context[key];
     }
     return acc;
-  }, {})
-};
+  })
+);
 
-const mapBindingChangesToProps = (newValues) => (
-  Object.keys(newValues).reduce((acc, key) => {
-    acc[key] = newValues[key].currentValue;
+const mapBindingsToInitialEvents = (context, bindings) => (
+  transformKeys(bindings, (acc, key) => {
+    if (bindings[key] === '&') {
+      acc[key] = context.handleEvent(context[key]);
+    }
     return acc;
-  }, {})
+  })
 );
 
 class ReactComponent extends Component {
@@ -89,10 +91,10 @@ const component = {
 
     ctrl.$onInit = () => {
       const { bindings } = component;
-      const props = mapBindingsToProps(this, bindings);
       const initialProps = mapBindingsToInitialProps(this, bindings);
+      const events = mapBindingsToInitialEvents(this, bindings);
 
-      render(<ReactComponent initialProps={initialProps} {...props} />, $element[0])
+      render(<ReactComponent initialProps={initialProps} {...events} />, $element[0])
     };
   },
 };
