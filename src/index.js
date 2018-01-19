@@ -1,6 +1,23 @@
+import { h } from 'preact';
 import { module, element, bootstrap } from 'angular';
 
-import reactComponent from './module';
+import withAngular from './module/withAngular';
+
+const ReactComponent = ({ items, onClick }) => (
+  <div>
+    This is a React Component<br/>
+    Props: {JSON.stringify(items)}
+    <div>
+      <button onClick={onClick}>Send event to Angular</button>
+    </div>
+  </div>
+);
+
+const reactComponent = withAngular(ReactComponent, {
+  items: '<',
+  onClick: '&',
+});
+
 
 const component = {
   template: `
@@ -17,8 +34,9 @@ const component = {
   }
 };
 
-module('angular.app', [reactComponent.name])
-  .component('rootApp', component);
+module('angular.app', [])
+  .component('rootApp', component)
+  .component('reactComponent', reactComponent);
 
 element(() => (
   bootstrap(document.getElementById('root'), ['angular.app'])
