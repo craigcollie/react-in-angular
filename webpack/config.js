@@ -27,6 +27,10 @@ export default {
 
   module: { rules: loaders },
 
+  ...isDevEnvironment && {
+    devtool: 'source-map',
+  },
+
   ...!isDevEnvironment && {
     externals: [
       nodeExternals({

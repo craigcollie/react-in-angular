@@ -15,23 +15,29 @@ const ReactComponent = ({ items, onClick }) => (
 
 const reactComponent = withAngular(ReactComponent, {
   items: '<',
+  tests: '<',
   onClick: '&',
 });
 
 
 const component = {
   template: `
-    <react-component items="$ctrl.items" on-click="$ctrl.onClick" />
+    <react-component
+      items="$ctrl.items"
+      on-click="$ctrl.onClick"
+      tests="$ctrl.tests"
+    />
   `,
   controller: function (){
     const ctrl = this;
 
     ctrl.items = ['foo', 'bar'];
+    ctrl.tests = [1, 2, 3, 4, 5];
 
     ctrl.onClick = () => (
       ctrl.items = [...ctrl.items, 'wee']
-    );;
-  }
+    );
+  },
 };
 
 module('angular.app', [])

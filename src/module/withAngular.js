@@ -1,54 +1,106 @@
 import { h, render, Component } from 'preact';
-import EventEmitter from './EventEmitter';
-import * as utils from './bindingUtils';
+import PropTypes from 'prop-types';
+
+class PropsProxy {
+  constructor() {
+    this.subscriberFn = null;
+  }
+
+  connect(subscriber) {
+    this.subscriberFn = subscriber;
+  }
+
+  handleNextProps(changes) {
+    const nextProps = Object.keys(changes).reduce((acc, key) => {
+      const { currentValue } = changes[key];
+      acc[key] = currentValue;
+      return acc;
+    }, {});
+    return this.subscriberFn && this.subscriberFn.apply(null, [nextProps]);
+  }
+
+  convertBindingsToProps(context, bindings) {
+    return Object.keys(bindings).reduce((acc, key) => {
+      const bindingType = bindings[key];
+      if (!(bindingType in acc)) {
+        acc[bindingType] = {};
+      }
+      const binding = (bindings[key] === '&')
+        ? context.handleEvent(context[key])
+        : context[key];
+
+      Object.assign(acc[bindingType], { [key]: binding });
+      return acc;
+    }, {});
+  }
+}
 
 export default (ReactComponent, bindings) => {
-  const ee = new EventEmitter();
-  const eventName = 'onChange';
+  const propsProxy = new PropsProxy();
 
   class ReactComponentWithBindings extends Component {
-    constructor(props) {
-      super(props);
-      this.state = { ...props.initialProps };
+    static propTypes = {
+      oneWayBindings: Object.keys(bindings)
+        .reduce((acc, key) => {
+          acc[key] = PropTypes.any;
+          return acc;
+        }, {}).isRequired,
+      expProps: Object.keys(bindings)
+        .reduce((acc, key) => {
+          acc[key] = PropTypes.func;
+          return acc;
+        }, {}).isRequired,
     }
 
-    componentDidMount = () => (
-      ee.on(eventName, this.syncWithAngular)
-    )
+    constructor(props) {
+      super(props);
+      //  Any one-way bindings are set as
+      //  default values in the React component
+      this.state = { ...props.oneWayBindings };
 
-    syncWithAngular = props => this.setState(props);
+      //  When any bindings change outside of the
+      //  React lifecycle, they are automatically
+      //  updated and setState is called
+      propsProxy.connect(this.nextBindingChange);
+    }
+
+    //  Handles the changes outside of the React
+    //  lifecycle and sets the next props as state
+    nextBindingChange = (nextProps) => {
+      this.setState(nextProps);
+    }
 
     render() {
-      return <ReactComponent {...this.state} {...this.props} />;
+      const { expProps } = this.props;
+      return <ReactComponent {...this.state} {...expProps} />;
     }
   }
 
   return {
     bindings,
-    controller: function ($rootScope, $element){
-      const ctrl = this;
-
-      const syncWithCycle = $rootScope => (
-        !$rootScope.$$phase && $rootScope.$digest()
+    controller: function controllerFn($rootScope, $element) {
+      //  Wraps all upstream React events with
+      //  an additional $digest call to ensure
+      this.handleEvent = fn => (...args) => (
+        fn()(...args) && !$rootScope.$$phase && $rootScope.$digest()
       );
 
-      ctrl.handleEvent = fn => (...args) => (
-        fn()(...args) && syncWithCycle($rootScope)
-      );
+      //  Maps all one-way binding changes back
+      //  to React props through an event service
+      this.$onChanges = (changes) => {
+        propsProxy.handleNextProps(changes);
+      };
 
-      ctrl.$onChanges = (newValues) => (
-        ee.dispatch(eventName, utils.mapBindingChangesToProps(newValues))
-      );
-
-      ctrl.$onInit = () => {
+      this.$onInit = () => {
+        const props = propsProxy.convertBindingsToProps(this, bindings);
         render(
           <ReactComponentWithBindings
-            initialProps={utils.mapBindingsToInitialProps(this, bindings)}
-            {...utils.mapBindingsToInitialEvents(this, bindings)}
+            oneWayBindings={props['<']}
+            expProps={props['&']}
           />,
-          $element[0]
+          $element[0],
         );
       };
     },
   };
-}
+};
