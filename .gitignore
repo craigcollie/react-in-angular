@@ -1,6 +1,6 @@
 node_modules
 .idea
-lib
+dist
 .DS_Store
 lerna-debug.log
 .history

@@ -7,10 +7,10 @@
   "license": "MIT",
   "scripts": {
     "start": "node -r babel-register ./node_modules/.bin/webpack-dev-server --config=./webpack/config --watch",
-    "clean": "rm -rf lib && mkdir lib",
+    "clean": "rm -rf dist && mkdir dist",
     "build": "yarn run clean && yarn run bundle",
     "bundle": "NODE_ENV=production node -r babel-register ./node_modules/.bin/webpack -p --config=./webpack/config",
-    "serve": "http-server ./lib"
+    "serve": "http-server ./dist"
   },
   "devDependencies": {
     "angular": "^1.6.8",

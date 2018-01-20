@@ -35,7 +35,7 @@ class PropsProxy {
   }
 }
 
-export default (ReactComponent, bindings) => {
+export default (ReactComponent, { bindings, ...rest }) => {
   const propsProxy = new PropsProxy();
 
   class ReactComponentWithBindings extends Component {
@@ -77,13 +77,17 @@ export default (ReactComponent, bindings) => {
   }
 
   return {
+    ...rest,
     bindings,
     controller: function controllerFn($rootScope, $element) {
       //  Wraps all upstream React events with
       //  an additional $digest call to ensure
-      this.handleEvent = fn => (...args) => (
-        fn()(...args) && !$rootScope.$$phase && $rootScope.$digest()
-      );
+      this.handleEvent = fn => (...args) => {
+        fn()(...args);
+        if (!$rootScope.$$phase) {
+          $rootScope.$digest();
+        }
+      };
 
       //  Maps all one-way binding changes back
       //  to React props through an event service
