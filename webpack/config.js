@@ -3,35 +3,29 @@ import nodeExternals from 'webpack-node-externals';
 
 import plugins from './plugins';
 import loaders from './loaders';
-import config from './../src/config';
+import { isDevEnvironment } from './../env';
 
 const rootPath = path.resolve(__dirname, './../');
 
-const { name, isDevEnvironment } = config;
-
 export default {
-  entry: ['./index.js'],
-  context: `${rootPath}/src`,
-  output: {
-    path: `${rootPath}/lib`,
-    publicPath: '/',
-    filename: isDevEnvironment
-      ? `${name}.js`
-      : `${name}.min.js`,
-
-    ...!isDevEnvironment && {
-      library: name,
-      libraryTarget: 'window',
-    },
-  },
-
-  module: { rules: loaders },
-
   ...isDevEnvironment && {
+    entry: './demo/index.js',
+    output: {
+      path: `${rootPath}/lib`,
+      publicPath: '/',
+      filename: '[name].bundle.js',
+    },
     devtool: 'source-map',
   },
 
   ...!isDevEnvironment && {
+    entry: './src/index.js',
+    output: {
+      path: `${rootPath}/lib`,
+      publicPath: '/',
+      filename: 'index.js',
+      libraryTarget: 'commonjs2',
+    },
     externals: [
       nodeExternals({
         whitelist: ['preact'],
@@ -39,5 +33,7 @@ export default {
     ],
   },
 
+  context: rootPath,
+  module: { rules: loaders },
   plugins,
 };

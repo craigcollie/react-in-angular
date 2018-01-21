@@ -1,16 +1,19 @@
 {
   "name": "@craigcollie/react-angular-component",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "lib/index.js",
   "repository": "git@github.com:craigcollie/react-in-angular.git",
   "author": "Craig Collie <hello@craigcollie.co>",
   "license": "MIT",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "start": "node -r babel-register ./node_modules/.bin/webpack-dev-server --config=./webpack/config --watch",
-    "clean": "rm -rf dist && mkdir dist",
+    "clean": "rm -rf lib && mkdir lib",
     "build": "yarn run clean && yarn run bundle",
     "bundle": "NODE_ENV=production node -r babel-register ./node_modules/.bin/webpack -p --config=./webpack/config",
-    "serve": "http-server ./dist"
+    "serve": "http-server ./lib"
   },
   "devDependencies": {
     "angular": "^1.6.8",

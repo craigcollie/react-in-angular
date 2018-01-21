@@ -2,15 +2,9 @@ import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
-import config from './../src/config';
-
-const { isDevEnvironment } = config;
+import { isDevEnvironment } from './../env';
 
 export default [
-  new HtmlWebpackPlugin({
-    template: './index.html',
-  }),
-
   ...!isDevEnvironment && [
     new ExtractTextPlugin({
       filename: '[name].[hash].css',
@@ -19,6 +13,9 @@ export default [
   ],
 
   ...isDevEnvironment && [
+    new HtmlWebpackPlugin({
+      template: './demo/index.html',
+    }),
     new webpack.HotModuleReplacementPlugin(),
   ],
 ];

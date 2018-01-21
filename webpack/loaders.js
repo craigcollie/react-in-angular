@@ -1,9 +1,7 @@
 import autoprefixer from 'autoprefixer';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
-import config from './../src/config';
-
-const { isDevEnvironment, excludedModules } = config;
+import { isDevEnvironment, excludedModules } from './../env';
 
 const cssLoader = {
   loader: 'css-loader',
