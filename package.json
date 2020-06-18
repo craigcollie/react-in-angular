@@ -16,7 +16,7 @@
     "serve": "http-server ./lib"
   },
   "devDependencies": {
-    "angular": "^1.6.8",
+    "angular": "^1.8.0",
     "autoprefixer": "^7.2.5",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.1",
